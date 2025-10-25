@@ -1,6 +1,5 @@
 use async_trait::async_trait;
 use chrono_tz::America::Toronto;
-use clap::ValueEnum;
 use rig::{
     agent::Agent,
     client::{ CompletionClient, ProviderClient },
@@ -22,7 +21,7 @@ impl<M: CompletionModel + Send + Sync> RunnableAgent for Agent<M> {
     }
 }
 
-#[derive(Debug, Clone, ValueEnum)]
+#[derive(Debug, Clone)]
 pub enum ModelProvider {
     Anthropic,
     Gemini,

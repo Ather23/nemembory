@@ -1,5 +1,5 @@
 use clap::{ Parser };
-use rig_Test::{ get_agent, ModelProvider };
+use nemembory::{ get_agent, ModelProvider };
 mod tools;
 
 #[derive(Parser, Debug)]
