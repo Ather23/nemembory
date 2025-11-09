@@ -1,9 +1,7 @@
 use clap::{ Parser };
 use nemembory::{ get_agent, ModelProvider };
-
-use crate::chat::chat::Message;
 mod tools;
-mod chat;
+
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Args {
@@ -27,16 +25,10 @@ async fn main() -> anyhow::Result<()> {
         "gemini" => get_agent(ModelProvider::Gemini),
         _ => unreachable!(),
     };
-    let messages = vec![
-        rig::message::Message::user("You are a helpful assistant."),
-        rig::message::Message::user("What is Rust?"),
-        rig::message::Message::assistant("Rust is a systems programming language...")
-    ];
-    let result = agent.run(&args.prompt, &messages, 20).await?;
+
+    let result = agent.run(&args.prompt, 20).await?;
 
     println!("\n\nReasoning Agent: {result}");
-
-    println!("\n\nMESSAGES: {:?}", messages);
 
     Ok(())
 }

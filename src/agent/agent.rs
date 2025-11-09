@@ -3,7 +3,8 @@ use chrono_tz::America::Toronto;
 use rig::{
     agent::Agent,
     client::{ CompletionClient, ProviderClient },
-    completion::{ CompletionModel, Prompt, PromptError },
+    completion::{ Completion, CompletionModel, Prompt, PromptError },
+    message::Message,
     providers::{ anthropic, gemini },
 };
 
@@ -11,13 +12,23 @@ use crate::{ LinkToMarkdown, RestApiTool, ShellTool, WebSearch };
 
 #[async_trait]
 pub trait RunnableAgent: Send + Sync {
-    async fn run(&self, prompt: &str, max_turns: usize) -> Result<String, PromptError>;
+    async fn run(
+        &self,
+        prompt: &str,
+        messages: &Vec<Message>,
+        max_turns: usize
+    ) -> Result<String, PromptError>;
 }
 
 #[async_trait]
 impl<M: CompletionModel + Send + Sync> RunnableAgent for Agent<M> {
-    async fn run(&self, prompt: &str, max_turns: usize) -> Result<String, PromptError> {
-        self.prompt(prompt).multi_turn(max_turns).await
+    async fn run(
+        &self,
+        prompt: &str,
+        messages: &Vec<Message>,
+        max_turns: usize
+    ) -> Result<String, PromptError> {
+        self.prompt(prompt).with_history(&mut messages.clone()).multi_turn(max_turns).await
     }
 }
 
