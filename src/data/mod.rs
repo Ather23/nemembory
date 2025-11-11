@@ -1,2 +1,2 @@
 pub mod agents;
-pub use agents::{ Agent, Tool, AgentPersistence, FileBasedAgentStore };
+pub use agents::{ Agent, Tool, AgentPersistence, DbAgentStore, DbError };

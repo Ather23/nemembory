@@ -68,6 +68,8 @@ impl AgentChat {
 
     pub async fn add_message(&mut self, message: Message) {
         self.messages.push(message.clone());
+
+        //todo: move this to a seperate function
         for handler in &self.handlers {
             let handler = Arc::clone(handler);
             if let Err(e) = handler.handle_message(message.clone()).await {

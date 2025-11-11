@@ -2,8 +2,8 @@ use async_trait::async_trait;
 use chrono_tz::America::Toronto;
 use rig::{
     agent::Agent,
-    client::{ CompletionClient, ProviderClient },
-    completion::{ Completion, CompletionModel, Prompt, PromptError },
+    client::{ CompletionClient },
+    completion::{ CompletionModel, Prompt, PromptError },
     message::Message,
     providers::{ anthropic, gemini },
 };

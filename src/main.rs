@@ -1,7 +1,5 @@
 use clap::{ Parser };
-use nemembory::{ get_agent, ModelProvider };
-
-use crate::chat::chat::Message;
+use nemembory::{ ModelProvider };
 mod tools;
 mod chat;
 #[derive(Parser, Debug)]
