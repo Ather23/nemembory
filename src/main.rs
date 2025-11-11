@@ -1,9 +1,7 @@
 use clap::{ Parser };
-use nemembory::{ get_agent, ModelProvider };
+use nemembory_chat::{ AgentChat, chat::chat };
+use nemembory_core::ModelProvider;
 
-use crate::chat::chat::Message;
-mod tools;
-mod chat;
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Args {
@@ -22,7 +20,7 @@ async fn main() -> anyhow::Result<()> {
         panic!("Invalid model provider. Use 'Anthropic' or 'Gemini'.");
     }
 
-    let mut chat = chat::chat::AgentChat::new(
+    let mut chat = AgentChat::new(
         if args.model.to_lowercase() == "anthropic" {
             ModelProvider::Anthropic
         } else {

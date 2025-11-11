@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use nemembory::RunnableAgent;
+use nemembory_core::RunnableAgent;
 use serde::{ Deserialize, Serialize };
 use std::sync::Arc;
 
@@ -37,11 +37,11 @@ pub struct AgentChat {
 }
 
 impl AgentChat {
-    pub fn new(model: nemembory::ModelProvider) -> Self {
+    pub fn new(model: nemembory_core::ModelProvider) -> Self {
         Self {
             messages: Vec::new(),
             handlers: Vec::new(),
-            agent: nemembory::get_agent(model),
+            agent: nemembory_core::get_agent(model),
         }
     }
     pub async fn run(&mut self, prompt: &str, max_turns: usize) -> Result<String, std::io::Error> {
@@ -68,6 +68,8 @@ impl AgentChat {
 
     pub async fn add_message(&mut self, message: Message) {
         self.messages.push(message.clone());
+
+        //todo: move this to a seperate function
         for handler in &self.handlers {
             let handler = Arc::clone(handler);
             if let Err(e) = handler.handle_message(message.clone()).await {

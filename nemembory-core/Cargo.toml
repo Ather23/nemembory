@@ -1,12 +1,9 @@
 [package]
-name = "nemembory"
+name = "nemembory-core"
 version = "0.1.0"
 edition = "2024"
-
-
-[workspace]
 resolver = "2"
-members = ["nemembory-chat", "nemembory-core"]
+
 
 [dependencies]
 serde = { version = "1.0.219", features = ["derive"] }
@@ -30,5 +27,3 @@ sqlx = { version = "0.8.6", features = [
     "postgres",
     "macros",
 ] }
-nemembory-core = { path = "D:\\git_repos\\nemembory\\nemembory-core" }
-nemembory-chat = { path = "D:\\git_repos\\nemembory\\nemembory-chat" }
