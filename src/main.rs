@@ -1,7 +1,9 @@
 use clap::{ Parser };
-use rig_Test::{ get_agent, ModelProvider };
-mod tools;
+use nemembory::{ get_agent, ModelProvider };
 
+use crate::chat::chat::Message;
+mod tools;
+mod chat;
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Args {
@@ -20,15 +22,31 @@ async fn main() -> anyhow::Result<()> {
         panic!("Invalid model provider. Use 'Anthropic' or 'Gemini'.");
     }
 
-    let agent = match args.model.as_str() {
-        "anthropic" => get_agent(ModelProvider::Anthropic),
-        "gemini" => get_agent(ModelProvider::Gemini),
-        _ => unreachable!(),
-    };
+    let mut chat = chat::chat::AgentChat::new(
+        if args.model.to_lowercase() == "anthropic" {
+            ModelProvider::Anthropic
+        } else {
+            ModelProvider::Gemini
+        }
+    );
 
-    let result = agent.run(&args.prompt, 20).await?;
+    let answer = chat.run(&args.prompt, 10).await?;
+    println!("\n\nReasoning Agent: {answer}");
 
-    println!("\n\nReasoning Agent: {result}");
+    // let agent = match args.model.as_str() {
+    //     "anthropic" => get_agent(ModelProvider::Anthropic),
+    //     "gemini" => get_agent(ModelProvider::Gemini),
+    //     _ => unreachable!(),
+    // };
+    // let messages = vec![
+    //     rig::message::Message::user("What is Rust?"),
+    //     rig::message::Message::assistant("Rust is a systems programming language...")
+    // ];
+    // let result = agent.run(&args.prompt, &messages, 20).await?;
+
+    // println!("\n\nReasoning Agent: {result}");
+
+    // println!("\n\nMESSAGES: {:?}", messages);
 
     Ok(())
 }
