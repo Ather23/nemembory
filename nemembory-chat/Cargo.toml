@@ -1,27 +1,18 @@
 [package]
-name = "nemembory"
+name = "nemembory-chat"
 version = "0.1.0"
 edition = "2024"
-
-
-[workspace]
 resolver = "2"
-members = ["nemembory-chat", "nemembory-core"]
+
 
 [dependencies]
+rig-core = "0.23.1"
 serde = { version = "1.0.219", features = ["derive"] }
 anyhow = "1.0.98"
-rig-core = "0.23.1"
 serde_json = "1.0.142"
 thiserror = "2.0.12"
 tokio = { version = "1.47.1", features = ["rt-multi-thread", "macros"] }
-tracing-subscriber = "0.3.19"
-brave-rs = { path = "D:\\git_repos\\brave-rs" }
-reqwest = "0.12.23"
-schemars = "0.8.22"
 tracing = "0.1.41"
-clap = { version = "4.5.46", features = ["derive"] }
-html2md = "0.2.15"
 chrono = { version = "0.4.41", features = ["serde"] }
 chrono-tz = "0.10.4"
 async-trait = "0.1.89"
@@ -31,4 +22,3 @@ sqlx = { version = "0.8.6", features = [
     "macros",
 ] }
 nemembory-core = { path = "D:\\git_repos\\nemembory\\nemembory-core" }
-nemembory-chat = { path = "D:\\git_repos\\nemembory\\nemembory-chat" }

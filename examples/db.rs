@@ -1,5 +1,5 @@
 use chrono_tz::America::Toronto;
-use nemembory::{ AgentPersistence, data::agents::{ Agent, DbAgentStore } };
+use nemembory_core::{ AgentPersistence, data::agents::{ Agent, DbAgentStore } };
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {

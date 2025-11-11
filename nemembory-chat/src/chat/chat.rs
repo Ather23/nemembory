@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use nemembory::RunnableAgent;
+use nemembory_core::RunnableAgent;
 use serde::{ Deserialize, Serialize };
 use std::sync::Arc;
 
@@ -37,11 +37,11 @@ pub struct AgentChat {
 }
 
 impl AgentChat {
-    pub fn new(model: nemembory::ModelProvider) -> Self {
+    pub fn new(model: nemembory_core::ModelProvider) -> Self {
         Self {
             messages: Vec::new(),
             handlers: Vec::new(),
-            agent: nemembory::get_agent(model),
+            agent: nemembory_core::get_agent(model),
         }
     }
     pub async fn run(&mut self, prompt: &str, max_turns: usize) -> Result<String, std::io::Error> {
