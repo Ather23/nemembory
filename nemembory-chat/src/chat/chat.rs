@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use nemembory_core::RunnableAgent;
+use nemembory_core::{ RunnableAgent, agent::HandleAgentResponse };
 use serde::{ Deserialize, Serialize };
 use std::sync::Arc;
 
@@ -50,7 +50,10 @@ impl AgentChat {
             .into_iter()
             .map(|m| m.into())
             .collect::<Vec<rig::message::Message>>();
-        match self.agent.run(prompt, &messages, max_turns).await {
+
+        let hook: HandleAgentResponse = HandleAgentResponse {};
+
+        match self.agent.run(prompt, &messages, max_turns, &hook).await {
             Ok(result) => {
                 self.add_message(Message::new(MessageRole::Assistant, result.clone())).await;
                 self.add_message(Message::new(MessageRole::User, prompt.to_string())).await;
