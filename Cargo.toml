@@ -6,7 +6,7 @@ edition = "2024"
 
 [workspace]
 resolver = "2"
-members = ["nemembory-chat", "nemembory-core"]
+members = ["nemembory-core"]
 
 [dependencies]
 serde = { version = "1.0.219", features = ["derive"] }
@@ -31,4 +31,3 @@ sqlx = { version = "0.8.6", features = [
     "macros",
 ] }
 nemembory-core = { path = "D:\\git_repos\\nemembory\\nemembory-core" }
-nemembory-chat = { path = "D:\\git_repos\\nemembory\\nemembory-chat" }
