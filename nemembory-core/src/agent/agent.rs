@@ -8,7 +8,7 @@ use rig::{
     providers::{ anthropic, gemini },
 };
 
-use crate::{ LinkToMarkdown, RestApiTool, ShellTool, WebSearch };
+use crate::{ LinkToMarkdown, RestApiTool, ShellTool, WebSearch, agent::hooks::HandleAgentResponse };
 
 #[async_trait]
 pub trait RunnableAgent: Send + Sync {
@@ -16,7 +16,8 @@ pub trait RunnableAgent: Send + Sync {
         &self,
         prompt: &str,
         messages: &Vec<Message>,
-        max_turns: usize
+        max_turns: usize,
+        nemembory_hook: &HandleAgentResponse
     ) -> Result<String, PromptError>;
 }
 
@@ -26,9 +27,14 @@ impl<M: CompletionModel + Send + Sync> RunnableAgent for Agent<M> {
         &self,
         prompt: &str,
         messages: &Vec<Message>,
-        max_turns: usize
+        max_turns: usize,
+        nemembory_hook: &HandleAgentResponse
     ) -> Result<String, PromptError> {
-        self.prompt(prompt).with_history(&mut messages.clone()).multi_turn(max_turns).await
+        self
+            .prompt(prompt)
+            .with_hook(nemembory_hook.clone())
+            .with_history(&mut messages.clone())
+            .multi_turn(max_turns).await
     }
 }
 

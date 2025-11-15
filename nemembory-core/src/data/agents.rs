@@ -1,6 +1,6 @@
 use async_trait::async_trait;
-use sqlx::{ PgPool, Pool, prelude::FromRow };
-use chrono::{ Date, DateTime, Utc };
+use chrono::{Date, DateTime, Utc};
+use sqlx::{PgPool, Pool, prelude::FromRow};
 
 #[derive(serde::Serialize, FromRow, serde::Deserialize, Debug, Clone)]
 pub struct Agent {
@@ -40,43 +40,49 @@ impl DbAgentStore {
 impl AgentPersistence for DbAgentStore {
     async fn save_agent(&self, agent: Agent) -> Result<(), DbError> {
         let query = "UPDATE agents SET display_name = $1, system_prompt = $2 WHERE code = $3";
-        sqlx
-            ::query(query)
+        let code = &agent.code;
+        sqlx::query(query)
             .bind(&agent.display_name)
             .bind(&agent.system_prompt)
-            .bind(&agent.code)
-            .execute(&self.db_pool).await?;
+            .bind(code)
+            .execute(&self.db_pool)
+            .await?;
         Ok(())
     }
 
     async fn load_agents(&self) -> Result<Vec<Agent>, DbError> {
-        let query = "SELECT id, code, display_name, system_prompt FROM agents";
-        let agents = sqlx::query_as::<_, Agent>(query).fetch_all(&self.db_pool).await?;
+        let query = r#"SELECT id, code, display_name, system_prompt FROM agents"#;
+        let agents = sqlx::query_as::<_, Agent>(query)
+            .fetch_all(&self.db_pool)
+            .await?;
         Ok(agents)
     }
 
     async fn get_agent(&self, id: i8) -> Result<Agent, DbError> {
         let query = "SELECT id, code, display_name, system_prompt FROM agents WHERE id = $1";
-        let agent = sqlx::query_as::<_, Agent>(query).bind(id).fetch_one(&self.db_pool).await?;
+        let agent = sqlx::query_as::<_, Agent>(query)
+            .bind(id)
+            .fetch_one(&self.db_pool)
+            .await?;
         Ok(agent)
     }
 
     async fn add_agent(&self, agent: Agent) -> Result<Agent, DbError> {
-        let query =
-            "INSERT INTO agents (code, display_name, system_prompt) VALUES ($1, $2, $3) RETURNING id, code, display_name, system_prompt";
-        let new_agent = sqlx
-            ::query_as::<_, Agent>(query)
+        let query = "INSERT INTO agents (code, display_name, system_prompt) VALUES ($1, $2, $3) RETURNING id, code, display_name, system_prompt";
+        let new_agent = sqlx::query_as::<_, Agent>(query)
             .bind(&agent.code)
             .bind(&agent.display_name)
             .bind(&agent.system_prompt)
-            .fetch_one(&self.db_pool).await?;
+            .fetch_one(&self.db_pool)
+            .await?;
         Ok(new_agent)
     }
 }
 
 #[derive(Debug, thiserror::Error)]
 pub enum DbError {
-    #[error("Sql error: {0}")] SqlError(String),
+    #[error("Sql error: {0}")]
+    SqlError(String),
 }
 
 impl From<sqlx::Error> for DbError {

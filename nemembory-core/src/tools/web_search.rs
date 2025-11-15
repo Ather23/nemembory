@@ -1,4 +1,4 @@
-use brave_rs::{ brave::BraveClientError, BraveClient };
+use brave_rs::{ BraveClient, WebSearchApiResponse, brave::BraveClientError };
 use rig::{ completion::ToolDefinition, tool::Tool };
 use serde::{ Deserialize, Serialize };
 use serde_json::json;
@@ -13,7 +13,7 @@ impl Tool for WebSearch {
     const NAME: &'static str = "web_search";
     type Error = SearchError;
     type Args = WebSearchArgs;
-    type Output = String;
+    type Output = Vec<String>;
 
     async fn definition(&self, _prompt: String) -> ToolDefinition {
         ToolDefinition {
@@ -37,19 +37,21 @@ impl Tool for WebSearch {
         let client = BraveClient::new(&api_key);
 
         println!("Query: {}", &args.query);
-        let result = client.web_search_by_query(&args.query).await?;
-
-        let first_result = match &result.web {
-            Some(web_results) =>
-                web_results.results
-                    .first()
+        let result = client.web_search_by_query(&args.query).await;
+        match result {
+            Ok(response) => {
+                let search_result = response.web
+                    .unwrap()
+                    .results.iter()
                     .map(|r| r.description.clone())
-                    .unwrap_or_else(|| "No results found".to_string()),
-            None => "No web results".to_string(),
-        };
-
-        println!("search result {:?}", &first_result);
-        Ok(first_result)
+                    .collect();
+                Ok(search_result)
+            }
+            Err(er) => {
+                eprintln!("Brave client error: {}", er.to_string());
+                Err(er.into())
+            }
+        }
     }
 }
 
