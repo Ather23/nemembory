@@ -45,19 +45,25 @@ pub enum ModelProvider {
     Gemini,
 }
 
-pub fn get_agent(provider: ModelProvider) -> Box<dyn RunnableAgent> {
+pub fn get_agent(provider: ModelProvider, task: String) -> Box<dyn RunnableAgent> {
     let todays_date = chrono::Utc::now().with_timezone(&Toronto);
-    let preamble =
-        format!(r#"
+    let preamble = format!(
+        r#"
             # Goal:
-            You are an assistant here to help the user select which tool is most appropriate to perform the task specified by the user.
+            You are an assistant here to help the user accomplish the following task: 
+            {} 
+            You have access to some tools that can help you with with performing your goal
+            Select the tool is most appropriate to perform the task specified by the user.
             Follow these instructions closely.
             1. Consider the user's request carefully and identify the core elements of the request.
             2. Select which tool among those made available to you is appropriate given the context.
             3. This is very important: never perform the operation yourself.
             
             # Context: 
-            Todays date is: {}"#, todays_date);
+            Todays date is: {}"#,
+        &task,
+        todays_date
+    );
 
     match provider {
         ModelProvider::Anthropic => {
@@ -123,11 +129,11 @@ pub struct NememboryAgent {
 }
 
 impl NememboryAgent {
-    pub fn new(model: ModelProvider) -> Self {
+    pub fn new(task: String, model: ModelProvider) -> Self {
         Self {
             messages: Vec::new(),
             handlers: Vec::new(),
-            agent: get_agent(model),
+            agent: get_agent(model, task.to_string()),
         }
     }
     pub async fn run(&mut self, prompt: &str, max_turns: usize) -> Result<String, std::io::Error> {
