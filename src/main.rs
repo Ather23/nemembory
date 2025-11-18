@@ -15,18 +15,16 @@ struct Args {
 async fn main() -> anyhow::Result<()> {
     let args = Args::parse();
 
-    if args.model != "anthropic" && args.model != "gemini" {
-        panic!("Invalid model provider. Use 'Anthropic' or 'Gemini'.");
-    }
-
-    let task = "Help me with different questions that I have".to_string();
-
-    let model = if args.model.to_lowercase() == "anthropic" {
-        ModelProvider::Anthropic
-    } else {
-        ModelProvider::Gemini
+    let model = match args.model.to_lowercase().as_str() {
+        "anthropic" => ModelProvider::Anthropic,
+        "gemini" => ModelProvider::Gemini,
+        other => {
+            eprintln!("Invalid model provider: {other}. Use 'anthropic' or 'gemini'.");
+            std::process::exit(1);
+        }
     };
 
+    let task = "Help me with different questions that I have".to_string();
     let mut chat = NememboryAgent::new(task, model);
 
     let answer = chat.run(&args.prompt, 10).await?;

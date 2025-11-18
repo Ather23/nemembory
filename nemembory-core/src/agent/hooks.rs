@@ -1,26 +1,12 @@
-use async_trait::async_trait;
 use rig::{ agent::{ CancelSignal, PromptHook }, completion::CompletionModel };
 use thiserror::Error;
 use std::sync::Arc;
-use std::sync::Mutex;
 use std::future::Future;
-use std::pin::Pin;
 use std::collections::HashMap;
 
 #[derive(Debug, Error)]
 pub enum AgentHookError {
     #[error("Agent Hook on tool call error: {0}")] AgentHookError(String),
-}
-
-#[async_trait]
-pub trait AgentHooks {
-    async fn on_tool_call(&self, tool_name: &str, args: &str) -> Result<(), AgentHookError>;
-    async fn on_tool_result(
-        &self,
-        tool_name: &str,
-        args: &str,
-        result: &str
-    ) -> Result<(), AgentHookError>;
 }
 
 #[derive(Clone)]
@@ -30,11 +16,26 @@ pub struct HandleAgentResponse {
 
 impl<M: CompletionModel> PromptHook<M> for HandleAgentResponse {
     async fn on_tool_call(&self, tool_name: &str, args: &str, _cancel_sig: CancelSignal) {
-        for callback in &self.callbacks.clone() {
-            let mut params = HashMap::new();
-            params.insert("tool_name".to_string(), tool_name.to_string());
-            params.insert("args".to_string(), args.to_string());
-            callback(params);
+        let callbacks = self.callbacks.clone();
+        let tool_name = tool_name.to_string();
+        let args = args.to_string();
+
+        let handles: Vec<_> = callbacks
+            .into_iter()
+            .map(|callback| {
+                let tool_name = tool_name.clone();
+                let args = args.clone();
+                tokio::spawn(async move {
+                    let mut params = HashMap::new();
+                    params.insert("tool_name".to_string(), tool_name);
+                    params.insert("args".to_string(), args);
+                    callback(params);
+                })
+            })
+            .collect();
+
+        for handle in handles {
+            let _ = handle.await;
         }
     }
 
@@ -44,9 +45,7 @@ impl<M: CompletionModel> PromptHook<M> for HandleAgentResponse {
         args: &str,
         result: &str,
         _cancel_sig: CancelSignal
-    ) {
-        println!("hi");
-    }
+    ) {}
 
     fn on_completion_call(
         &self,

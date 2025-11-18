@@ -10,6 +10,7 @@ use rig::{
 use serde::{ Deserialize, Serialize };
 use std::sync::Arc;
 use crate::{ LinkToMarkdown, RestApiTool, ShellTool, WebSearch, agent::hooks::HandleAgentResponse };
+use crate::hooks::log_tool_call;
 
 #[async_trait]
 pub trait RunnableAgent: Send + Sync {
@@ -143,12 +144,14 @@ impl NememboryAgent {
             .map(|m| m.into())
             .collect::<Vec<rig::message::Message>>();
 
-        let hook: HandleAgentResponse = HandleAgentResponse::new();
+        let mut hook: HandleAgentResponse = HandleAgentResponse::new();
+        hook.add_callback(log_tool_call);
 
         match self.agent.run(prompt, &messages, max_turns, &hook).await {
             Ok(result) => {
-                self.add_message(Message::new(MessageRole::Assistant, result.clone())).await;
                 self.add_message(Message::new(MessageRole::User, prompt.to_string())).await;
+                self.add_message(Message::new(MessageRole::Assistant, result.clone())).await;
+
                 Ok(result)
             }
             Err(e) =>
