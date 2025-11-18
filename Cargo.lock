@@ -1411,6 +1411,8 @@ dependencies = [
  "chrono",
  "chrono-tz",
  "clap",
+ "dyn-clone",
+ "futures",
  "html2md",
  "reqwest",
  "rig-core",

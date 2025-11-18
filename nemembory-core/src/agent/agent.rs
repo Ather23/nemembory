@@ -143,7 +143,7 @@ impl NememboryAgent {
             .map(|m| m.into())
             .collect::<Vec<rig::message::Message>>();
 
-        let hook: HandleAgentResponse = HandleAgentResponse {};
+        let hook: HandleAgentResponse = HandleAgentResponse::new();
 
         match self.agent.run(prompt, &messages, max_turns, &hook).await {
             Ok(result) => {
