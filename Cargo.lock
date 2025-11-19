@@ -1388,7 +1388,6 @@ dependencies = [
  "chrono-tz",
  "clap",
  "html2md",
- "nemembory-chat",
  "nemembory-core",
  "reqwest",
  "rig-core",
@@ -1403,24 +1402,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "nemembory-chat"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "chrono",
- "chrono-tz",
- "nemembory-core",
- "rig-core",
- "serde",
- "serde_json",
- "sqlx",
- "thiserror 2.0.17",
- "tokio",
- "tracing",
-]
-
-[[package]]
 name = "nemembory-core"
 version = "0.1.0"
 dependencies = [
@@ -1430,6 +1411,8 @@ dependencies = [
  "chrono",
  "chrono-tz",
  "clap",
+ "dyn-clone",
+ "futures",
  "html2md",
  "reqwest",
  "rig-core",

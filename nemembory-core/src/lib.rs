@@ -1,8 +1,9 @@
 pub mod agent;
 pub mod tools;
 pub mod data;
+pub mod hooks;
 
-pub use agent::{ get_agent, ModelProvider, RunnableAgent };
+pub use agent::{ get_agent, ModelProvider, RunnableAgent, NememboryAgent };
 pub use tools::{ RestApiTool, WebSearch, ShellTool, LinkToMarkdown };
 pub use data::{ Agent, Tool, AgentPersistence };
 use rig::completion::{ CompletionModel, PromptError };

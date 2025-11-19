@@ -7,18 +7,25 @@ use serde_json::json;
 #[error("Search error")]
 pub struct SearchError;
 
+#[derive(Deserialize, Serialize, Debug)]
+pub struct WebSearchResult {
+    pub title: String,
+    pub url: String,
+    pub description: String,
+}
+
 #[derive(Deserialize, Serialize)]
 pub struct WebSearch;
 impl Tool for WebSearch {
     const NAME: &'static str = "web_search";
     type Error = SearchError;
     type Args = WebSearchArgs;
-    type Output = Vec<String>;
+    type Output = Vec<WebSearchResult>;
 
     async fn definition(&self, _prompt: String) -> ToolDefinition {
         ToolDefinition {
             name: "web_search".to_string(),
-            description: "Searches the web".to_string(),
+            description: "Searches the web and returns title, url, and description for each result".to_string(),
             parameters: json!({
                 "type": "object",
                 "properties": {
@@ -40,11 +47,22 @@ impl Tool for WebSearch {
         let result = client.web_search_by_query(&args.query).await;
         match result {
             Ok(response) => {
-                let search_result = response.web
-                    .unwrap()
-                    .results.iter()
-                    .map(|r| r.description.clone())
-                    .collect();
+                let search_result = match response.web {
+                    Some(web) =>
+                        web.results
+                            .iter()
+                            .map(|r| WebSearchResult {
+                                title: r.title.clone(),
+                                url: r.url.clone(),
+                                description: r.description.clone(),
+                            })
+                            .collect(),
+                    None => {
+                        eprintln!("WebSearch: no web results for query: {}", args.query);
+                        Vec::new()
+                    }
+                };
+
                 Ok(search_result)
             }
             Err(er) => {
