@@ -186,6 +186,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "brave-rs"
+version = "0.1.0"
+source = "git+https://github.com/Ather23/brave-rs#65a458291010d004cbb8cd0320f849ce9dd4d3b9"
+dependencies = [
+ "derive_builder",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.17",
+ "tokio",
+ "urlencoding",
+]
+
+[[package]]
 name = "bumpalo"
 version = "3.19.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1383,14 +1397,14 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "async-trait",
- "brave-rs",
+ "brave-rs 0.1.0",
  "chrono",
  "chrono-tz",
  "clap",
  "html2md",
  "nemembory-core",
  "reqwest",
- "rig-core",
+ "rig-core 0.23.1",
  "schemars 0.8.22",
  "serde",
  "serde_json",
@@ -1407,7 +1421,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "async-trait",
- "brave-rs",
+ "brave-rs 0.1.0 (git+https://github.com/Ather23/brave-rs)",
  "chrono",
  "chrono-tz",
  "clap",
@@ -1415,7 +1429,7 @@ dependencies = [
  "futures",
  "html2md",
  "reqwest",
- "rig-core",
+ "rig-core 0.24.0",
  "schemars 0.8.22",
  "serde",
  "serde_json",
@@ -1906,6 +1920,34 @@ name = "rig-core"
 version = "0.23.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5f9cbb51d97b03fb936caf5c1b05a7229cca0ddd569a0d09d9d2e2be41538fc2"
+dependencies = [
+ "as-any",
+ "async-stream",
+ "base64",
+ "bytes",
+ "eventsource-stream",
+ "futures",
+ "futures-timer",
+ "glob",
+ "http",
+ "mime_guess",
+ "ordered-float",
+ "pin-project-lite",
+ "reqwest",
+ "schemars 1.1.0",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.17",
+ "tokio",
+ "tracing",
+ "tracing-futures",
+ "url",
+]
+
+[[package]]
+name = "rig-core"
+version = "0.24.0"
+source = "git+https://github.com/0xPlaygrounds/rig#59a1bb145f18837e0b8e0e2cdd920f5a099a0440"
 dependencies = [
  "as-any",
  "async-stream",
