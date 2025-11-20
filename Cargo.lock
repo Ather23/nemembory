@@ -186,6 +186,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "brave-rs"
+version = "0.1.0"
+source = "git+https://github.com/Ather23/brave-rs?branch=main#65a458291010d004cbb8cd0320f849ce9dd4d3b9"
+dependencies = [
+ "derive_builder",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.17",
+ "tokio",
+ "urlencoding",
+]
+
+[[package]]
 name = "bumpalo"
 version = "3.19.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1383,7 +1397,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "async-trait",
- "brave-rs",
+ "brave-rs 0.1.0",
  "chrono",
  "chrono-tz",
  "clap",
@@ -1407,7 +1421,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "async-trait",
- "brave-rs",
+ "brave-rs 0.1.0 (git+https://github.com/Ather23/brave-rs?branch=main)",
  "chrono",
  "chrono-tz",
  "clap",
