@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use chrono_tz::America::Toronto;
 use rig::{
     agent::Agent,
-    client::{ CompletionClient },
+    client::{ CompletionClient, ProviderClient },
     completion::{ CompletionModel, Prompt, PromptError },
     providers::{ anthropic, gemini },
 };
@@ -70,7 +70,7 @@ pub fn get_agent(provider: ModelProvider, task: String) -> Box<dyn RunnableAgent
         ModelProvider::Anthropic => {
             let client: anthropic::Client = anthropic::Client::from_env();
             let agent = client
-                .agent(anthropic::CLAUDE_4_SONNET)
+                .agent(anthropic::Claude4Sonnet)
                 .preamble(&preamble)
                 .max_tokens(1024)
                 .tool(RestApiTool)
@@ -83,7 +83,7 @@ pub fn get_agent(provider: ModelProvider, task: String) -> Box<dyn RunnableAgent
         ModelProvider::Gemini => {
             let client: gemini::Client = gemini::Client::from_env();
             let agent = client
-                .agent(gemini::completion::GEMINI_1_0_PRO)
+                .agent(gemini::completion::Gemini25Pro)
                 .preamble(&preamble)
                 .max_tokens(1024)
                 .tool(RestApiTool)
