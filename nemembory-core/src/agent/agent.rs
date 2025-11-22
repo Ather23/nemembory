@@ -9,7 +9,13 @@ use rig::{
 
 use serde::{ Deserialize, Serialize };
 use std::sync::Arc;
-use crate::{ LinkToMarkdown, RestApiTool, ShellTool, WebSearch, agent::hooks::HandleAgentResponse };
+use crate::{
+    LinkToMarkdown,
+    RestApiTool,
+    ShellTool,
+    WebSearch,
+    agent::{ hooks::HandleAgentResponse, manager::RemoteAgent },
+};
 use crate::hooks::log_tool_call;
 
 #[async_trait]
@@ -151,7 +157,7 @@ impl NememboryAgent {
             Ok(result) => {
                 self.add_message(Message::new(MessageRole::User, prompt.to_string())).await;
                 self.add_message(Message::new(MessageRole::Assistant, result.clone())).await;
-
+                dbg!("Messages {:?}", &self.messages);
                 Ok(result)
             }
             Err(e) =>

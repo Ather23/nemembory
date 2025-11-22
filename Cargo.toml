@@ -31,3 +31,4 @@ sqlx = { version = "0.8.6", features = [
     "macros",
 ] }
 nemembory-core = { path = "D:\\git_repos\\nemembory\\nemembory-core" }
+tokio-tungstenite = "0.28.0"
