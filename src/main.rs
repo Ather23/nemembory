@@ -8,9 +8,6 @@ use tokio::sync::Mutex;
 #[command(version, about, long_about = None)]
 struct Args {
     #[arg(short, long)]
-    prompt: String,
-
-    #[arg(short, long)]
     model: String,
 }
 
@@ -34,29 +31,5 @@ async fn main() -> anyhow::Result<()> {
     nemembory_core::agent::connections
         ::start_websocket_server(agent, "127.0.0.1:8080").await
         .expect("Failed to start WebSocket server");
-
-    // let manager = RemoteAgent::new(agent);
-
-    // // Get clones before moving manager
-    // let input_tx = manager.input_tx.clone();
-    // let mut output_rx = manager.output.subscribe();
-
-    // // Spawn manager in background to process messages
-    // let manager_handle = tokio::spawn(async move {
-    //     let mut manager = manager;
-    //     if let Err(e) = manager.run().await {
-    //         eprintln!("Manager error: {}", e);
-    //     }
-    // });
-
-    // // Send the prompt
-    // input_tx.send(args.prompt).await?;
-
-    // // Listen for response
-    // if let Ok(response) = output_rx.recv().await {
-    //     println!("{}", response);
-    // }
-
-    // manager_handle.abort();
     Ok(())
 }

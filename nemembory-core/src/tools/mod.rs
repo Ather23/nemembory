@@ -6,3 +6,5 @@ pub use rest_api::*;
 pub mod link_to_markdown;
 pub use link_to_markdown::LinkToMarkdown;
 pub use web_search::WebSearch;
+pub mod get_date;
+pub use get_date::GetDate;
