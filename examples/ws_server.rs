@@ -4,7 +4,7 @@ use tokio::{ io::{ AsyncBufReadExt, BufReader } };
 
 #[tokio::main]
 async fn main() {
-    let url = "ws://127.0.0.1:8080";
+    let url = "ws://127.0.0.1:3000";
 
     match connect_async(url).await {
         Ok((ws_stream, _)) => {
