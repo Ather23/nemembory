@@ -84,9 +84,6 @@ impl<M: CompletionModel> PromptHook<M> for HandleAgentResponse {
         let _response = &response;
 
         let content: Message = prompt.clone().into();
-
-        // println!("Content {:?}", &_response.);
-
         let handles: Vec<_> = callbacks
             .into_iter()
             .map(|callback| {

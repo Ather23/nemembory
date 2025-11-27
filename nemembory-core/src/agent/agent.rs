@@ -171,7 +171,6 @@ impl NememboryAgent {
             Ok(result) => {
                 self.add_message(Message::new(MessageRole::User, prompt.to_string())).await;
                 self.add_message(Message::new(MessageRole::Assistant, result.clone())).await;
-                dbg!("Messages {:?}", &self.messages);
                 Ok(result)
             }
             Err(e) =>
