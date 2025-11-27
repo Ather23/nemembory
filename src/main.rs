@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use clap::{ Parser };
-use nemembory_core::{ ModelProvider, agent::{ agent::NememboryAgent, manager::RemoteAgent } };
+use nemembory_core::{ ModelProvider, agent::{ agent::NememboryAgent } };
 use tokio::sync::Mutex;
 
 #[derive(Parser, Debug)]

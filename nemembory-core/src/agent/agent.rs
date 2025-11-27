@@ -8,15 +8,16 @@ use rig::{
 };
 
 use serde::{ Deserialize, Serialize };
+use tokio_tungstenite::tungstenite::handshake;
 use std::sync::Arc;
 use crate::{
     LinkToMarkdown,
     RestApiTool,
     ShellTool,
     WebSearch,
-    agent::{ hooks::HandleAgentResponse, manager::RemoteAgent },
+    agent::{ hooks::HandleAgentResponse },
 };
-use crate::hooks::log_tool_call;
+use crate::hooks::{ log_tool_call, write_to_file };
 
 #[async_trait]
 pub trait RunnableAgent: Send + Sync {
@@ -131,7 +132,7 @@ pub trait MessageHandler {
 }
 pub struct NememboryAgent {
     pub messages: Vec<Message>,
-    pub handlers: Vec<Arc<dyn MessageHandler + Send + Sync>>,
+    // pub handlers: Vec<Arc<dyn MessageHandler + Send + Sync>>,
     pub agent: Box<dyn RunnableAgent + Send + Sync + 'static>,
 }
 
@@ -139,7 +140,7 @@ impl NememboryAgent {
     pub fn new(task: String, model: ModelProvider) -> Self {
         Self {
             messages: Vec::new(),
-            handlers: Vec::new(),
+            // handlers: Vec::new(),
             agent: get_agent(model, task.to_string()),
         }
     }
@@ -152,6 +153,7 @@ impl NememboryAgent {
 
         let mut hook: HandleAgentResponse = HandleAgentResponse::new();
         hook.add_callback(log_tool_call);
+        hook.add_callback(write_to_file);
 
         match self.agent.run(prompt, &messages, max_turns, &hook).await {
             Ok(result) => {
@@ -174,13 +176,13 @@ impl NememboryAgent {
         self.messages.push(message.clone());
 
         //todo: move this to a seperate function
-        for handler in &self.handlers {
-            let handler = Arc::clone(handler);
-            if let Err(e) = handler.handle_message(message.clone()).await {
-                // log the error but continue processing other handlers
-                eprintln!("Error handling message: {}", e);
-                continue;
-            }
-        }
+        // for handler in &self.handlers {
+        //     let handler = Arc::clone(handler);
+        //     if let Err(e) = handler.handle_message(message.clone()).await {
+        //         // log the error but continue processing other handlers
+        //         eprintln!("Error handling message: {}", e);
+        //         continue;
+        //     }
+        // }
     }
 }
