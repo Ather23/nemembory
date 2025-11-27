@@ -15,7 +15,7 @@ use crate::{
     RestApiTool,
     ShellTool,
     WebSearch,
-    agent::{ hooks::HandleAgentResponse },
+    agent::{ FileHandler, hooks::HandleAgentResponse },
 };
 use crate::hooks::{ log_tool_call, write_to_file };
 
@@ -132,7 +132,7 @@ pub trait MessageHandler {
 }
 pub struct NememboryAgent {
     pub messages: Vec<Message>,
-    // pub handlers: Vec<Arc<dyn MessageHandler + Send + Sync>>,
+    pub handlers: Vec<Arc<dyn MessageHandler + Send + Sync>>,
     pub agent: Box<dyn RunnableAgent + Send + Sync + 'static>,
 }
 
@@ -140,10 +140,22 @@ impl NememboryAgent {
     pub fn new(task: String, model: ModelProvider) -> Self {
         Self {
             messages: Vec::new(),
-            // handlers: Vec::new(),
+            handlers: Vec::new(),
             agent: get_agent(model, task.to_string()),
         }
     }
+
+    pub fn with_handlers(mut self, handlers: Vec<Arc<dyn MessageHandler + Send + Sync>>) -> Self {
+        self.handlers = handlers;
+        self
+    }
+
+    pub fn default_handlers(mut self) -> Self {
+        let logging_handler = Arc::new(FileHandler::new("agent_messages.log".to_string()));
+        self.handlers.push(logging_handler);
+        self
+    }
+
     pub async fn run(&mut self, prompt: &str, max_turns: usize) -> Result<String, std::io::Error> {
         let messages = self.messages
             .clone()
@@ -176,13 +188,13 @@ impl NememboryAgent {
         self.messages.push(message.clone());
 
         //todo: move this to a seperate function
-        // for handler in &self.handlers {
-        //     let handler = Arc::clone(handler);
-        //     if let Err(e) = handler.handle_message(message.clone()).await {
-        //         // log the error but continue processing other handlers
-        //         eprintln!("Error handling message: {}", e);
-        //         continue;
-        //     }
-        // }
+        for handler in &self.handlers {
+            let handler = Arc::clone(handler);
+            if let Err(e) = handler.handle_message(message.clone()).await {
+                // log the error but continue processing other handlers
+                eprintln!("Error handling message: {}", e);
+                continue;
+            }
+        }
     }
 }

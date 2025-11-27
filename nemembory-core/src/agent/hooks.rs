@@ -1,6 +1,5 @@
 use rig::{ agent::{ CancelSignal, PromptHook }, completion::CompletionModel };
 use thiserror::Error;
-use tokio_tungstenite::tungstenite::http::response;
 use std::sync::Arc;
 use std::future::Future;
 use std::collections::HashMap;
@@ -67,9 +66,9 @@ impl<M: CompletionModel> PromptHook<M> for HandleAgentResponse {
     ) -> impl Future<Output = ()> + Send {
         async move {
             dbg!(
-                "on_completion_call called with prompt: {:?}, history length: {}",
+                "on_completion_call called with prompt: {:?}, history length: {:?}",
                 prompt,
-                history.len()
+                &history
             );
         }
     }

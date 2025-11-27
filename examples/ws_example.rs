@@ -41,7 +41,7 @@ async fn main() -> Result<()> {
     };
 
     let task = args.task;
-    let agent = NememboryAgent::new(task, model);
+    let agent = NememboryAgent::new(task, model).default_handlers();
     let session_ctx = Arc::new(
         Mutex::new(SessionContext {
             agent,
