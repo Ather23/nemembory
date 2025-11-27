@@ -4,7 +4,8 @@ use tokio_tungstenite::{ connect_async, tungstenite::protocol::Message };
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    let connect_addr = "ws://127.0.0.1:3000";
+    // Connect to the nemembory-server WebSocket endpoint
+    let connect_addr = "ws://127.0.0.1:3000/ws";
 
     println!("Connecting to {}", connect_addr);
 
