@@ -3,12 +3,10 @@ name = "nemembory-server"
 version = "0.1.0"
 edition = "2024"
 
-
-[workspace]
-resolver = "2"
-members = ["nemembory-core"]
-
 [dependencies]
 nemembory-core = { path = "D:\\git_repos\\nemembory\\nemembory-core" }
 tokio = { version = "1.47.1", features = ["rt-multi-thread", "macros"] }
 clap = { version = "4.5.46", features = ["derive"] }
+tokio-tungstenite = "0.28.0"
+futures-util = "0.3.31"
+anyhow = "1.0.100"
