@@ -6,7 +6,7 @@ edition = "2024"
 
 [workspace]
 resolver = "2"
-members = ["nemembory-core"]
+members = ["nemembory-core", "nemembory-server"]
 
 [dependencies]
 serde = { version = "1.0.219", features = ["derive"] }
@@ -31,3 +31,6 @@ sqlx = { version = "0.8.6", features = [
     "macros",
 ] }
 nemembory-core = { path = "D:\\git_repos\\nemembory\\nemembory-core" }
+tokio-tungstenite = "0.28.0"
+futures = "0.3"
+futures-util = "0.3.31"

@@ -8,9 +8,16 @@ use rig::{
 };
 
 use serde::{ Deserialize, Serialize };
+use tokio_tungstenite::tungstenite::handshake;
 use std::sync::Arc;
-use crate::{ LinkToMarkdown, RestApiTool, ShellTool, WebSearch, agent::hooks::HandleAgentResponse };
-use crate::hooks::log_tool_call;
+use crate::{
+    LinkToMarkdown,
+    RestApiTool,
+    ShellTool,
+    WebSearch,
+    agent::{ FileHandler, hooks::HandleAgentResponse },
+};
+use crate::hooks::{ log_tool_call, write_to_file };
 
 #[async_trait]
 pub trait RunnableAgent: Send + Sync {
@@ -137,6 +144,18 @@ impl NememboryAgent {
             agent: get_agent(model, task.to_string()),
         }
     }
+
+    pub fn with_handlers(mut self, handlers: Vec<Arc<dyn MessageHandler + Send + Sync>>) -> Self {
+        self.handlers = handlers;
+        self
+    }
+
+    pub fn default_handlers(mut self) -> Self {
+        let logging_handler = Arc::new(FileHandler::new("agent_messages.log".to_string()));
+        self.handlers.push(logging_handler);
+        self
+    }
+
     pub async fn run(&mut self, prompt: &str, max_turns: usize) -> Result<String, std::io::Error> {
         let messages = self.messages
             .clone()
@@ -146,12 +165,12 @@ impl NememboryAgent {
 
         let mut hook: HandleAgentResponse = HandleAgentResponse::new();
         hook.add_callback(log_tool_call);
+        hook.add_callback(write_to_file);
 
         match self.agent.run(prompt, &messages, max_turns, &hook).await {
             Ok(result) => {
                 self.add_message(Message::new(MessageRole::User, prompt.to_string())).await;
                 self.add_message(Message::new(MessageRole::Assistant, result.clone())).await;
-
                 Ok(result)
             }
             Err(e) =>
