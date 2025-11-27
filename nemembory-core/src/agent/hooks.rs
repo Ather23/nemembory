@@ -92,7 +92,6 @@ impl<M: CompletionModel> PromptHook<M> for HandleAgentResponse {
                     let mut params = HashMap::new();
                     params.insert("content".to_string(), content.message);
                     params.insert("role".to_string(), format!("{:?}", content.role));
-                    println!("Callback Params {:?}", &params);
                     callback(params);
                 })
             })

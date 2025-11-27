@@ -103,7 +103,7 @@ pub fn get_agent(provider: ModelProvider, task: String) -> Box<dyn RunnableAgent
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct Message {
     pub role: MessageRole,
     pub message: String,
