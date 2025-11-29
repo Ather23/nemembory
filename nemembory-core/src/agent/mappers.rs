@@ -12,7 +12,6 @@ impl From<Message> for rig::message::Message {
 
 impl From<rig::message::Message> for Message {
     fn from(message: rig::message::Message) -> Self {
-        println!("Message from rig: {:?}", &message);
         match message {
             rig::message::Message::User { content, .. } =>
                 Self {

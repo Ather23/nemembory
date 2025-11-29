@@ -114,6 +114,7 @@ impl HandleAgentResponse {
     pub fn add_callback<F>(&mut self, callback: F)
         where F: Fn(HashMap<String, String>) + Send + Sync + 'static
     {
+        //TODO: FIX THIS TO ADD TOOL CALL CALLBACKS
         // self.on_tool_call_callback.push(Arc::new(callback));
         self.on_completion_response_callback.push(Arc::new(callback));
     }

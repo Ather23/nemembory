@@ -87,16 +87,12 @@ async fn handle_websocket(socket: axum::extract::ws::WebSocket, context: AppStat
 
     while let Some(Ok(msg)) = receiver.next().await {
         if let axum::extract::ws::Message::Text(text) = msg {
-            println!("Received message: {}", text);
-
             let mut ctx = context.lock().await;
             if let Ok(response) = ctx.agent.run(&text, 4).await {
                 let _ = sender.send(axum::extract::ws::Message::Text(response.into())).await;
             }
         }
     }
-
-    println!("WebSocket connection closed");
 }
 
 async fn update_session(
