@@ -40,7 +40,8 @@ impl From<rig::message::Message> for Message {
                             match f {
                                 rig::message::AssistantContent::Text(text) => text.text.clone(),
                                 rig::message::AssistantContent::ToolCall(_) => String::new(),
-                                rig::message::AssistantContent::Reasoning(_) => String::new(),
+                                // Catch-all for Reasoning, Image, and any future variants
+                                _ => String::new(),
                             }
                         })
                         .collect::<String>(),
