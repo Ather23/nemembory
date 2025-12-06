@@ -53,7 +53,7 @@ async fn main() -> Result<()> {
 
     let task = args.task;
 
-    let agent = NememboryAgent::new(task.clone(), model.clone()).default_handlers();
+    let agent = NememboryAgent::new("server_agent", task.clone(), model.clone()).default_handlers();
 
     let session_ctx: AppState = Arc::new(
         Mutex::new(SessionContext {
@@ -116,7 +116,11 @@ async fn update_session(
         ctx.task = task;
     }
 
-    ctx.agent = NememboryAgent::new(ctx.task.clone(), ctx.model.clone()).default_handlers();
+    ctx.agent = NememboryAgent::new(
+        "server_agent",
+        ctx.task.clone(),
+        ctx.model.clone()
+    ).default_handlers();
 
     Json(
         serde_json::json!({

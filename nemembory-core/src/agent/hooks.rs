@@ -11,15 +11,15 @@ pub enum AgentHookError {
     #[error("Agent Hook on tool call error: {0}")] AgentHookError(String),
 }
 
+pub type LlmResponseFunctionType = Vec<Arc<dyn Fn(HashMap<String, String>) + Send + Sync>>;
+
 #[derive(Clone)]
-pub struct HandleAgentResponse {
-    pub(crate) on_tool_call_callback: Vec<Arc<dyn Fn(HashMap<String, String>) + Send + Sync>>,
-    pub(crate) on_completion_response_callback: Vec<
-        Arc<dyn Fn(HashMap<String, String>) + Send + Sync>
-    >,
+pub struct LlmResponseHooks {
+    pub(crate) on_tool_call_callback: LlmResponseFunctionType,
+    pub(crate) on_completion_response_callback: LlmResponseFunctionType,
 }
 
-impl<M: CompletionModel> PromptHook<M> for HandleAgentResponse {
+impl<M: CompletionModel> PromptHook<M> for LlmResponseHooks {
     async fn on_tool_call(&self, tool_name: &str, args: &str, _cancel_sig: CancelSignal) {
         let callbacks = self.on_tool_call_callback.clone();
         let tool_name = tool_name.to_string();
@@ -103,7 +103,7 @@ impl<M: CompletionModel> PromptHook<M> for HandleAgentResponse {
     }
 }
 
-impl HandleAgentResponse {
+impl LlmResponseHooks {
     pub fn new() -> Self {
         Self {
             on_tool_call_callback: Vec::new(),
@@ -111,12 +111,16 @@ impl HandleAgentResponse {
         }
     }
 
-    pub fn add_callback<F>(&mut self, callback: F)
+    pub fn add_completion_response_callback<F>(&mut self, callback: F)
         where F: Fn(HashMap<String, String>) + Send + Sync + 'static
     {
-        //TODO: FIX THIS TO ADD TOOL CALL CALLBACKS
-        // self.on_tool_call_callback.push(Arc::new(callback));
         self.on_completion_response_callback.push(Arc::new(callback));
+    }
+
+    pub fn add_tool_call_callback<F>(&mut self, callback: F)
+        where F: Fn(HashMap<String, String>) + Send + Sync + 'static
+    {
+        self.on_tool_call_callback.push(Arc::new(callback));
     }
 
     pub fn call_callbacks(&self, params: HashMap<String, String>) {
