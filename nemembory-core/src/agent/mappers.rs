@@ -12,7 +12,6 @@ impl From<Message> for rig::message::Message {
 
 impl From<rig::message::Message> for Message {
     fn from(message: rig::message::Message) -> Self {
-        println!("Message from rig: {:?}", &message);
         match message {
             rig::message::Message::User { content, .. } =>
                 Self {
@@ -41,7 +40,8 @@ impl From<rig::message::Message> for Message {
                             match f {
                                 rig::message::AssistantContent::Text(text) => text.text.clone(),
                                 rig::message::AssistantContent::ToolCall(_) => String::new(),
-                                rig::message::AssistantContent::Reasoning(_) => String::new(),
+                                // Catch-all for Reasoning, Image, and any future variants
+                                _ => String::new(),
                             }
                         })
                         .collect::<String>(),
