@@ -1,7 +1,9 @@
 pub mod agent;
 pub mod hooks;
 pub mod mappers;
-pub use agent::{ get_agent, ModelProvider, RunnableAgent, NememboryAgent };
+pub mod model;
+pub use agent::{ RunnableAgent, NememboryAgent };
+pub use model::{ ModelProvider, build_runnable_agent };
 pub use hooks::{ AgentHookError, HandleAgentResponse };
 pub use crate::handlers::FileHandler;
 pub use mappers::*;

@@ -46,3 +46,9 @@ Content: what is python
 Role: User
 Content: 
 
+Role: User
+Content: What is the current date?
+
+Role: User
+Content: What is the current date?
+
