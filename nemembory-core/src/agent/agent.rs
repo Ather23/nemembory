@@ -4,7 +4,12 @@ use rig::{ completion::{ CompletionModel, Prompt, PromptError } };
 use serde::{ Deserialize, Serialize };
 use std::sync::Arc;
 use crate::{ ModelProvider, agent::{ FileHandler, build_runnable_agent, hooks::LlmResponseHooks } };
-use crate::hooks::{ log_tool_call, WriteToolLogToFile };
+use crate::hooks::{
+    log_tool_call,
+    log_tool_call_result,
+    WriteToolLogToFile,
+    WriteToolResultToFile,
+};
 
 pub struct NememboryAgent {
     pub messages: Vec<Message>,
@@ -49,8 +54,6 @@ impl NememboryAgent {
     }
 
     pub fn default_handlers(mut self) -> Self {
-        // Agent task: Add directory check here
-
         let has_dir = self.has_working_dir.to_owned();
         if has_dir {
             let working_dir = &self.working_dir.as_ref().unwrap();
@@ -70,8 +73,13 @@ impl NememboryAgent {
             let working_dir = &self.working_dir.as_ref().unwrap();
             let path = format!("{}/{}", working_dir, "tool.log".to_string());
             let file_handler = WriteToolLogToFile::new(&path);
+            let result_path = format!("{}/{}", working_dir, "tool_result.log".to_string());
+            let result_file_handler = WriteToolResultToFile::new(&result_path);
             let mut hooks = self.hooks.take().unwrap_or_else(LlmResponseHooks::new);
             hooks.add_tool_call_callback(move |params| file_handler.write_to_file(params));
+            hooks.add_tool_call_result_callback(move |params|
+                result_file_handler.write_to_file(params)
+            );
             self.hooks = Some(hooks);
         }
         self
@@ -86,6 +94,7 @@ impl NememboryAgent {
 
         let mut hooks = self.hooks.clone().unwrap_or_else(LlmResponseHooks::new);
         hooks.add_tool_call_callback(log_tool_call);
+        hooks.add_tool_call_result_callback(log_tool_call_result);
 
         match self.agent.run(prompt, &messages, max_turns, &hooks).await {
             Ok(result) => {

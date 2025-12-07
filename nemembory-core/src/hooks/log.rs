@@ -8,3 +8,12 @@ pub fn log_tool_call(params: HashMap<String, String>) {
         }
     }
 }
+
+// Callback to handle tool call result metadata from the agent hook
+pub fn log_tool_call_result(params: HashMap<String, String>) {
+    if let Some(tool_name) = params.get("tool_name") {
+        if let Some(result) = params.get("result") {
+            println!("Tool result: {} returned: {}", tool_name, result);
+        }
+    }
+}

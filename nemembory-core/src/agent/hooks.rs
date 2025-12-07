@@ -17,6 +17,7 @@ pub type LlmResponseFunctionType = Vec<Arc<dyn Fn(HashMap<String, String>) + Sen
 pub struct LlmResponseHooks {
     pub(crate) on_tool_call_callback: LlmResponseFunctionType,
     pub(crate) on_completion_response_callback: LlmResponseFunctionType,
+    pub(crate) on_tool_call_result_callback: LlmResponseFunctionType,
 }
 
 impl<M: CompletionModel> PromptHook<M> for LlmResponseHooks {
@@ -50,12 +51,29 @@ impl<M: CompletionModel> PromptHook<M> for LlmResponseHooks {
         result: &str,
         _cancel_sig: CancelSignal
     ) {
-        dbg!(
-            "on_tool_result called with tool_name: {}, args: {}, result: {}",
-            tool_name,
-            args,
-            result
-        );
+        let callbacks = self.on_tool_call_result_callback.clone();
+        let tool_name = tool_name.to_string();
+        let args = args.to_string();
+        let result = result.to_string();
+        let handles: Vec<_> = callbacks
+            .into_iter()
+            .map(|callback| {
+                let tool_name = tool_name.clone();
+                let args = args.clone();
+                let result = result.clone();
+                tokio::spawn(async move {
+                    let mut params = HashMap::new();
+                    params.insert("tool_name".to_string(), tool_name);
+                    params.insert("args".to_string(), args);
+                    params.insert("result".to_string(), result);
+                    callback(params);
+                })
+            })
+            .collect();
+
+        for handle in handles {
+            let _ = handle.await;
+        }
     }
 
     fn on_completion_call(
@@ -108,6 +126,7 @@ impl LlmResponseHooks {
         Self {
             on_tool_call_callback: Vec::new(),
             on_completion_response_callback: Vec::new(),
+            on_tool_call_result_callback: Vec::new(),
         }
     }
 
@@ -121,6 +140,12 @@ impl LlmResponseHooks {
         where F: Fn(HashMap<String, String>) + Send + Sync + 'static
     {
         self.on_tool_call_callback.push(Arc::new(callback));
+    }
+
+    pub fn add_tool_call_result_callback<F>(&mut self, callback: F)
+        where F: Fn(HashMap<String, String>) + Send + Sync + 'static
+    {
+        self.on_tool_call_result_callback.push(Arc::new(callback));
     }
 
     pub fn call_callbacks(&self, params: HashMap<String, String>) {
