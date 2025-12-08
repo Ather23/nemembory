@@ -1,5 +1,11 @@
 use async_trait::async_trait;
-use rig::{ completion::{ CompletionModel, Prompt, PromptError } };
+use futures::{ Stream, StreamExt };
+use rig::{
+    agent::MultiTurnStreamItem,
+    completion::{ CompletionModel, Prompt, PromptError },
+    streaming::StreamingChat,
+};
+use std::pin::Pin;
 
 use serde::{ Deserialize, Serialize };
 use std::sync::Arc;
@@ -10,6 +16,12 @@ use crate::hooks::{
     WriteToolLogToFile,
     WriteToolResultToFile,
 };
+
+/// A boxed error type for streaming operations
+pub type StreamError = Box<dyn std::error::Error + Send + Sync>;
+
+/// A pinned, boxed stream that yields string chunks or errors
+pub type AgentStream<'a> = Pin<Box<dyn Stream<Item = Result<String, StreamError>> + Send + 'a>>;
 
 pub struct NememboryAgent {
     pub messages: Vec<Message>,
@@ -112,6 +124,15 @@ impl NememboryAgent {
         }
     }
 
+    pub fn run_stream(&self, prompt: &str, max_turns: usize) -> AgentStream<'_> {
+        let messages = self.messages
+            .iter()
+            .map(|m| m.clone().into())
+            .collect::<Vec<rig::message::Message>>();
+
+        self.agent.run_stream(prompt, &messages, max_turns)
+    }
+
     pub async fn add_message(&mut self, message: Message) {
         self.messages.push(message.clone());
 
@@ -136,10 +157,17 @@ pub trait RunnableAgent: Send + Sync {
         max_turns: usize,
         nemembory_hook: &LlmResponseHooks
     ) -> Result<String, PromptError>;
+
+    fn run_stream(
+        &self,
+        prompt: &str,
+        messages: &Vec<rig::message::Message>,
+        max_turns: usize
+    ) -> AgentStream<'_>;
 }
 
 #[async_trait]
-impl<M: CompletionModel + Send + Sync> RunnableAgent for rig::agent::Agent<M> {
+impl<M: CompletionModel + Send + Sync + 'static> RunnableAgent for rig::agent::Agent<M> {
     async fn run(
         &self,
         prompt: &str,
@@ -152,6 +180,52 @@ impl<M: CompletionModel + Send + Sync> RunnableAgent for rig::agent::Agent<M> {
             .with_hook(nemembory_hook.clone())
             .with_history(&mut messages.clone())
             .multi_turn(max_turns).await
+    }
+
+    fn run_stream(
+        &self,
+        prompt: &str,
+        messages: &Vec<rig::message::Message>,
+        _max_turns: usize
+    ) -> AgentStream<'_> {
+        let messages = messages.to_vec();
+        let prompt = prompt.to_string();
+
+        Box::pin(
+            async_stream::stream! {
+                let mut stream = self.stream_chat(&prompt, messages).await;
+
+                while let Some(result) = stream.next().await {
+                    match result {
+                        Ok(multi) => {
+                            match multi {
+                                MultiTurnStreamItem::StreamAssistantItem(
+                                    streamed_assistant_content,
+                                ) => {
+                                    match streamed_assistant_content {
+                                        rig::streaming::StreamedAssistantContent::Text(text) => {
+                                            yield Ok(text.text().to_string());
+                                        }
+                                        rig::streaming::StreamedAssistantContent::ToolCall(_) => {}
+                                        rig::streaming::StreamedAssistantContent::ToolCallDelta {
+                                            ..
+                                        } => {}
+                                        rig::streaming::StreamedAssistantContent::Reasoning(_) => {}
+                                        rig::streaming::StreamedAssistantContent::Final(_) => {}
+                                    }
+                                }
+                                MultiTurnStreamItem::StreamUserItem(_) => {}
+                                MultiTurnStreamItem::FinalResponse(_) => {}
+                                _ => {}
+                            }
+                        }
+                        Err(err) => {
+                            yield Err(Box::new(err) as Box<dyn std::error::Error + Send + Sync>);
+                        }
+                    }
+                }
+            }
+        )
     }
 }
 
