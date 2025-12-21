@@ -4,15 +4,16 @@ use serde_json::json;
 use thiserror::Error;
 use reqwest;
 use html2md;
+use tracing::instrument;
 
 #[derive(Debug, Error)]
 #[error("Failed to fetch or convert link contents")]
 pub struct LinkToMarkdownError;
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct LinkToMarkdown;
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct LinkToMarkdownArgs {
     pub url: String,
 }
@@ -40,10 +41,17 @@ impl Tool for LinkToMarkdown {
         }
     }
 
+    #[instrument(ret, err)]
     async fn call(&self, args: Self::Args) -> Result<Self::Output, Self::Error> {
-        let resp = reqwest::get(&args.url).await.map_err(|_| LinkToMarkdownError)?;
+        let resp = reqwest::get(&args.url).await.map_err(|e: reqwest::Error| LinkToMarkdownError)?;
         let html = resp.text().await.map_err(|_| LinkToMarkdownError)?;
+
+        dbg!("html {:?}", &html);
         let markdown = html2md::parse_html(&html);
         Ok(markdown)
+    }
+
+    fn name(&self) -> String {
+        Self::NAME.to_string()
     }
 }

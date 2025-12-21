@@ -206,11 +206,17 @@ impl<M: CompletionModel + Send + Sync + 'static> RunnableAgent for rig::agent::A
                                         rig::streaming::StreamedAssistantContent::Text(text) => {
                                             yield Ok(text.text().to_string());
                                         }
-                                        rig::streaming::StreamedAssistantContent::ToolCall(_) => {}
+                                        rig::streaming::StreamedAssistantContent::ToolCall(tc) => {
+                                            println!("Tool call {:?}", tc);
+                                        }
                                         rig::streaming::StreamedAssistantContent::ToolCallDelta {
                                             ..
                                         } => {}
-                                        rig::streaming::StreamedAssistantContent::Reasoning(_) => {}
+                                        rig::streaming::StreamedAssistantContent::Reasoning(
+                                            reas,
+                                        ) => {
+                                            println!("Reasoning {:?}", reas);
+                                        }
                                         rig::streaming::StreamedAssistantContent::Final(_) => {}
                                     }
                                 }

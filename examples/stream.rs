@@ -8,19 +8,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let task = "You are a helpful assistant that can answer questions.".to_string();
 
     // Create a new NememboryAgent with Anthropic as the model provider
-    let agent = NememboryAgent::new(
-        "stream_agent",
-        task,
-        ModelProvider::OpenRouter("anthropic/claude-haiku-4.5".to_string())
-    );
+    let agent = NememboryAgent::new("stream_agent", task, ModelProvider::Anthropic);
 
     // Run the agent with streaming enabled
-    let prompt = "Write a short poem about Rust programming language";
+    let prompt = "What is the temperature in the next couple of days in toronto";
     println!("Running agent with prompt: {}\n", prompt);
     println!("--- Streaming Response ---");
 
     // Get the stream and pin it
-    let stream = agent.run_stream(prompt, 5);
+    let stream = agent.run_stream(prompt, 20);
     tokio::pin!(stream);
 
     // Process each chunk as it arrives

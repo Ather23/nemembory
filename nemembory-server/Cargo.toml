@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-nemembory-core = { path = "D:\\git_repos\\nemembory\\nemembory-core" }
+nemembory-core = { path = "../nemembory-core" }
 tokio = { version = "1.47.1", features = ["rt-multi-thread", "macros"] }
 clap = { version = "4.5.46", features = ["derive"] }
 tokio-tungstenite = "0.28.0"
