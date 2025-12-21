@@ -51,6 +51,8 @@ impl Tool for ShellTool {
             .output().await
             .map_err(|e| ShellError::ExecutionError(e.to_string()))?;
 
+        dbg!("Shell output {:?}", &output);
+
         if output.status.success() {
             Ok(String::from_utf8_lossy(&output.stdout).to_string())
         } else {

@@ -38,26 +38,24 @@ pub fn build_runnable_agent(provider: ModelProvider, task: String) -> Box<dyn Ru
         ModelProvider::Anthropic => {
             let client: anthropic::Client = anthropic::Client::from_env();
             let agent = client
-                .agent(anthropic::Claude4Sonnet)
+                .agent(anthropic::completion::CLAUDE_4_SONNET)
                 .preamble(&preamble)
                 .max_tokens(1024)
                 .tool(RestApiTool)
                 .tool(WebSearch)
                 .tool(ShellTool)
-                .tool(LinkToMarkdown)
                 .build();
             Box::new(agent)
         }
         ModelProvider::Gemini => {
             let client: gemini::Client = gemini::Client::from_env();
             let agent = client
-                .agent(gemini::completion::Gemini25Pro)
+                .agent(gemini::completion::GEMINI_2_5_PRO_PREVIEW_06_05)
                 .preamble(&preamble)
                 .max_tokens(1024)
                 .tool(RestApiTool)
                 .tool(WebSearch)
                 .tool(ShellTool)
-                .tool(LinkToMarkdown)
                 .build();
             Box::new(agent)
         }
@@ -78,6 +76,10 @@ fn open_router_agent(provider: &str, task: String) -> Box<dyn RunnableAgent> {
             1. Consider the user's request carefully and identify the core elements of the request.
             2. Select which tool among those made available to you is appropriate given the context.
             3. This is very important: never perform the operation yourself.
+
+            # Output:
+            Your output should always be in markdown format. Make sure that the information is readable 
+            and concise.
             
             # Context: 
             Todays date is: {}"#,
@@ -93,7 +95,6 @@ fn open_router_agent(provider: &str, task: String) -> Box<dyn RunnableAgent> {
         .tool(RestApiTool)
         .tool(WebSearch)
         .tool(ShellTool)
-        .tool(LinkToMarkdown)
         .build();
 
     Box::new(agent)

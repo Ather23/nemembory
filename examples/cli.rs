@@ -19,7 +19,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .default_hooks();
 
     // Run the agent with a sample prompt that triggers a tool call
-    let prompt = "Run the shell command 'echo hello world'";
+    let prompt = "What is the weather today?";
     println!("Running agent with prompt: {}", prompt);
     let stream = agent.run_stream(prompt, 5);
     tokio::pin!(stream);
